@@ -1,7 +1,6 @@
 package world
 
 import (
-	"geneticAutomat/internal/entity"
 	"math/rand"
 )
 
@@ -18,52 +17,23 @@ type Statistic struct {
 	AvgOfPoison   float64
 }
 
-type Cell struct {
-	Poison int
-	Food   bool
-	Wall   bool
-	*entity.Entity
-}
-
-type Coordinates struct {
-	X int
-	Y int
-}
-
-func Sum(a, b Coordinates) Coordinates {
-	SumCord := Coordinates{
-		a.X + b.X,
-		a.Y + b.Y,
-	}
-	return SumCord
-}
-
-func (w World) SetWorldMap() {
-}
-
-func (w World) SetStatistic() {
-	w.CountOfEntity = 1
-	w.CountOfFood = 1
-	w.AvgOfPoison = 1
-}
-
-func (w World) GetDataCell(coordinates Coordinates) Cell {
+func (w *World) GetDataCell(coordinates Coordinates) Cell {
 	return w.Map[coordinates.X][coordinates.Y]
 }
 
-func (w World) SetFoodCell(coordinates Coordinates, dfood bool) {
+func (w *World) SetFoodCell(coordinates Coordinates, dfood bool) {
 	w.Map[coordinates.X][coordinates.Y].Food = dfood
 }
 
-func (w World) SetPoisonCell(coordinates Coordinates, dPoison int) {
+func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) {
 	w.Map[coordinates.X][coordinates.Y].Poison += dPoison
 }
 
-func (w World) UpdateEntityCell(coordinates Coordinates, entity *entity.Entity) {
+func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
 	w.Map[coordinates.X][coordinates.Y].Entity = entity
 }
 
-func Create(height, width int) World {
+func CreateWorld(height, width int) World {
 	world := World{
 		height,
 		width,
@@ -81,7 +51,7 @@ func Create(height, width int) World {
 	return world
 }
 
-func (w World) ClearWorld() {
+func (w *World) ClearWorld() {
 	for x := 0; x < w.Width; x++ {
 		for y := 0; y < w.Height; y++ {
 			w.Map[x][y].Wall = false
@@ -93,18 +63,18 @@ func (w World) ClearWorld() {
 	w.GenerateWalls()
 }
 
-func (w World) GenerateWalls() {
+func (w *World) GenerateWalls() {
 	for x := 0; x < w.Width; x++ {
 		w.Map[x][0].Wall = true
 		w.Map[x][w.Width-1].Wall = true
 	}
 	for y := 0; y < w.Height; y++ {
 		w.Map[0][y].Wall = true
-		w.Map[w.Height][y].Wall = true
+		w.Map[w.Height-1][y].Wall = true
 	}
 }
 
-func (w World) GenerateFood(foodChance int) {
+func (w *World) GenerateFood(foodChance int) {
 	for x := 1; x < w.Width-1; x++ {
 		for y := 1; y < w.Height-1; y++ {
 			if (w.Map[x][y].Poison < 50) &&

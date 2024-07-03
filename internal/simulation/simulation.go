@@ -2,10 +2,11 @@ package simulation
 
 import (
 	"fmt"
-	"geneticAutomat/internal/entity"
 	"geneticAutomat/internal/world"
 	"math/rand"
 )
+
+const population int = 1
 
 func Run() {
 	//TODO: init logger
@@ -13,30 +14,33 @@ func Run() {
 	//TODO: init console print
 
 	//TODO: create world
-	var model world.World = world.Create(64, 64)
+	var model world.World = world.CreateWorld(64, 64)
 	model.GenerateWalls()
 	model.GenerateFood(2)
 
 	//TODO: create start population
-	arrayEntity := make([]entity.Entity, 64)
-	for i := 0; i < 64; i++ {
-		arrayEntity[i] = entity.Create(rand.Intn(model.Height), rand.Intn(model.Width),
-			entity.RandomDNA())
+	arrayEntity := make([]world.Entity, population)
+	for i := 0; i < population; i++ {
+		arrayEntity[i] = world.CreateEntity(rand.Intn(model.Height), rand.Intn(model.Width),
+			world.RandomDNA())
 	}
 	//TODO: create goroutine of simulation
-	for age := 0; age < 100000; age++ {
+	for age := 0; age < 120; age++ {
 		countLive := 0
-		for _, mob := range arrayEntity {
-			if mob.Hp > 0 {
+		for i := 0; i < population; i++ {
+			if arrayEntity[i].Hp > 0 {
 				countLive++
-				mob.RunDNA(model)
-			} else if !(mob.Hp == -1) {
-				model.UpdateEntityCell(mob.Coordinates, nil)
-				model.SetPoisonCell(mob.Coordinates, 10)
-				mob.Hp = -1
+				world.RunDNA(&arrayEntity[i], &model)
+			} else if !(arrayEntity[i].Hp == -1) {
+				model.UpdateEntityCell(arrayEntity[i].Coordinates, nil)
+				model.SetPoisonCell(arrayEntity[i].Coordinates, 10)
+				arrayEntity[i].Hp = -1
 			}
 		}
-		model.CountOfEntity = countLive
-		fmt.Println(countLive)
+		if age%10 == 0 {
+			model.CountOfEntity = countLive
+			fmt.Print(countLive)
+			fmt.Println(" age: ", age)
+		}
 	}
 }

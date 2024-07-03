@@ -1,7 +1,6 @@
-package entity
+package world
 
 import (
-	"geneticAutomat/internal/world"
 	"math/rand"
 )
 
@@ -23,7 +22,7 @@ type Entity struct {
 	age  int
 	Hp   int
 	turn int
-	world.Coordinates
+	Coordinates
 	DNA
 }
 
@@ -32,11 +31,11 @@ type DNA struct {
 	Array      [longDNA]int
 }
 
-func (e Entity) RunDNA(w world.World) {
+func RunDNA(e *Entity, w *World) {
 	switch e.Array[e.PointerDNA] {
 	case command["move"]:
 		relativeCord := makeTurn(e.turn)
-		absoluteCord := world.Sum(relativeCord, e.Coordinates) //абсолютные координаты
+		absoluteCord := Sum(relativeCord, e.Coordinates) //абсолютные координаты
 		if (absoluteCord.X < w.Width) &&
 			(absoluteCord.Y < w.Height) &&
 			(absoluteCord.X >= w.Width) &&
@@ -45,8 +44,8 @@ func (e Entity) RunDNA(w world.World) {
 			(w.GetDataCell(absoluteCord).Entity == nil) {
 
 			w.UpdateEntityCell(e.Coordinates, nil)
-			e.Coordinates = world.Sum(relativeCord, e.Coordinates)
-			w.UpdateEntityCell(e.Coordinates, &e)
+			e.Coordinates = Sum(relativeCord, e.Coordinates)
+			w.UpdateEntityCell(e.Coordinates, e)
 		}
 	case command["turnLeft"]:
 		e.turn--
@@ -60,24 +59,24 @@ func (e Entity) RunDNA(w world.World) {
 		}
 	case command["look"]:
 		//if enmpty e.Pointer +=0
-		if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Wall {
+		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
 			e.PointerDNA += 1
-		} else if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Food {
+		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
 			e.PointerDNA += 2
-		} else if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
+		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
 			e.PointerDNA += 3
 		}
 	case command["get"]:
-		if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Wall {
+		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
 			e.Hp -= 5
-		} else if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Food {
+		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
 			e.Hp += 10
-			w.SetFoodCell(world.Sum(makeTurn(e.turn), e.Coordinates), false)
-		} else if w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
+			w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
+		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
 			e.PointerDNA += 3
 		}
 	case command["recycling"]:
-		poisonLevel := w.GetDataCell(world.Sum(makeTurn(e.turn), e.Coordinates)).Poison
+		poisonLevel := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Poison
 		var dPoison = 0
 		if poisonLevel > 75 {
 			dPoison = 20
@@ -88,7 +87,7 @@ func (e Entity) RunDNA(w world.World) {
 		} else if poisonLevel > 5 {
 			dPoison = 1
 		}
-		w.SetPoisonCell(world.Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
+		w.SetPoisonCell(Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
 		e.Hp += dPoison
 		e.PointerDNA++
 	case command["reproduction"]:
@@ -98,7 +97,7 @@ func (e Entity) RunDNA(w world.World) {
 	}
 
 	e.PointerDNA++
-	if e.PointerDNA > longDNA {
+	if e.PointerDNA >= longDNA {
 		e.PointerDNA -= longDNA
 	}
 	if e.PointerDNA < 0 {
@@ -108,8 +107,8 @@ func (e Entity) RunDNA(w world.World) {
 	w.SetPoisonCell(e.Coordinates, 1)
 }
 
-func makeTurn(turn int) world.Coordinates {
-	cordTurn := world.Coordinates{
+func makeTurn(turn int) Coordinates {
+	cordTurn := Coordinates{
 		0,
 		0,
 	}
@@ -142,13 +141,13 @@ func TODO() {
 
 }
 
-func Create(x, y int, dna DNA) Entity {
+func CreateEntity(x, y int, dna DNA) Entity {
 	return Entity{
 		0,
 		0,
 		100,
 		0,
-		world.Coordinates{
+		Coordinates{
 			x,
 			y,
 		},
@@ -159,9 +158,9 @@ func Create(x, y int, dna DNA) Entity {
 func RandomDNA() DNA {
 	var dna DNA
 	for i := 0; i < longDNA; i++ {
-		dna.Array[i] = rand.Intn(longDNA)
+		dna.Array[i] = rand.Intn(longDNA - 1)
 	}
-	dna.PointerDNA = rand.Intn(longDNA)
+	dna.PointerDNA = rand.Intn(longDNA - 1)
 	return dna
 }
 
@@ -169,8 +168,8 @@ func (dna1 *DNA) SetDNA(dna2 DNA) {
 	*dna1 = dna2
 }
 
-func (dna DNA) Mutation(count int) {
+func (dna *DNA) Mutation(count int) {
 	for i := 0; i < count; i++ {
-		dna.Array[i] = rand.Intn(longDNA)
+		dna.Array[i] = rand.Intn(longDNA - 1)
 	}
 }

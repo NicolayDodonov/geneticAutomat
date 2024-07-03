@@ -1,13 +1,13 @@
 package console
 
 import (
-	"geneticAutomat/internal/entity"
+	"geneticAutomat/internal/entityOLD"
 )
 
 type console interface {
 	clearConsole(typeOS string)
 	printBorder(startX, startY, endX, endY int)
-	printEntity(array *[]entity.Entity)
+	printEntity(array *[]entityOLD.Entity)
 	printPoisonLevel()
 }
 
@@ -19,7 +19,7 @@ func printBorder(startX, startY, endX, endY int) {
 
 }
 
-func printEntity(array *[]entity.Entity) {
+func printEntity(array *[]entityOLD.Entity) {
 
 }
 
