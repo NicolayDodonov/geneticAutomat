@@ -169,8 +169,8 @@ func (dna1 *DNA) SetDNA(dna2 DNA) {
 	*dna1 = dna2
 }
 
-func (dna1 DNA) Mutation(count int) {
+func (dna DNA) Mutation(count int) {
 	for i := 0; i < count; i++ {
-		dna1.Array[i] = rand.Intn(longDNA)
+		dna.Array[i] = rand.Intn(longDNA)
 	}
 }

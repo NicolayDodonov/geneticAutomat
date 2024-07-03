@@ -1,12 +1,13 @@
 package simulation
 
 import (
+	"fmt"
 	"geneticAutomat/internal/entity"
 	"geneticAutomat/internal/world"
 	"math/rand"
 )
 
-func run() {
+func Run() {
 	//TODO: init logger
 
 	//TODO: init console print
@@ -23,5 +24,19 @@ func run() {
 			entity.RandomDNA())
 	}
 	//TODO: create goroutine of simulation
-
+	for age := 0; age < 100000; age++ {
+		countLive := 0
+		for _, mob := range arrayEntity {
+			if mob.Hp > 0 {
+				countLive++
+				mob.RunDNA(model)
+			} else if !(mob.Hp == -1) {
+				model.UpdateEntityCell(mob.Coordinates, nil)
+				model.SetPoisonCell(mob.Coordinates, 10)
+				mob.Hp = -1
+			}
+		}
+		model.CountOfEntity = countLive
+		fmt.Println(countLive)
+	}
 }
