@@ -1,4 +1,4 @@
-package world
+package model
 
 type Cell struct {
 	Poison int
