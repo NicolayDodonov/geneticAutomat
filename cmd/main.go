@@ -1,8 +1,11 @@
 package main
 
-import "geneticAutomat/internal/simulation"
+import (
+	"fmt"
+	"geneticAutomat/internal/simulation"
+)
 
 func main() {
 	simulation.Run()
-
+	fmt.Scanln()
 }

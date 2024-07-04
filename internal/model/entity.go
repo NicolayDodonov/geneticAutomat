@@ -93,7 +93,11 @@ func RunDNA(e *Entity, w *World) {
 	case command["reproduction"]:
 		TODO()
 	case command["jump dna"]:
-		e.PointerDNA += e.Array[e.PointerDNA+1]
+		dPointerDNA := e.PointerDNA + 1
+		if dPointerDNA >= longDNA {
+			dPointerDNA -= longDNA
+		}
+		e.PointerDNA += e.Array[dPointerDNA]
 	}
 
 	e.PointerDNA++
