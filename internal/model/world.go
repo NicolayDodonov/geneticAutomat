@@ -5,9 +5,10 @@ import (
 )
 
 type World struct {
-	Height int
-	Width  int
-	Map    [][]Cell
+	Height      int
+	Width       int
+	Map         [][]Cell
+	ArrayEntity []Entity
 	Statistic
 }
 
@@ -17,27 +18,12 @@ type Statistic struct {
 	AvgOfPoison   float64
 }
 
-func (w *World) GetDataCell(coordinates Coordinates) Cell {
-	return w.Map[coordinates.X][coordinates.Y]
-}
-
-func (w *World) SetFoodCell(coordinates Coordinates, dfood bool) {
-	w.Map[coordinates.X][coordinates.Y].Food = dfood
-}
-
-func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) {
-	w.Map[coordinates.X][coordinates.Y].Poison += dPoison
-}
-
-func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
-	w.Map[coordinates.X][coordinates.Y].Entity = entity
-}
-
-func CreateWorld(height, width int) World {
+func CreateWorld(height, width, population int) World {
 	world := World{
 		height,
 		width,
 		make([][]Cell, height),
+		make([]Entity, population*2),
 		Statistic{
 			0,
 			0,
@@ -48,7 +34,44 @@ func CreateWorld(height, width int) World {
 		world.Map[x] = make([]Cell, width)
 	}
 	world.ClearWorld()
+	for i := 0; i < population; i++ {
+		world.ArrayEntity[i] = CreateEntity(
+			rand.Intn(world.Height-1)+1,
+			rand.Intn(world.Width-1)+1,
+			RandomDNA())
+		world.UpdateEntityCell(world.ArrayEntity[i].Coordinates, &world.ArrayEntity[i])
+	}
 	return world
+}
+
+func (w *World) insertNewEntity(entity Entity) {
+	NotInsert := true
+	for i := 0; i < len(w.ArrayEntity); i++ {
+		if w.ArrayEntity[i].Hp == -1 {
+			w.ArrayEntity[i] = entity
+			NotInsert = false
+			break
+		}
+	}
+	if NotInsert {
+
+	}
+}
+
+func (w *World) GetDataCell(coordinates Coordinates) *Cell {
+	return &w.Map[coordinates.X][coordinates.Y]
+}
+
+func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) {
+	w.Map[coordinates.X][coordinates.Y].Food = dFood
+}
+
+func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) {
+	w.Map[coordinates.X][coordinates.Y].Poison += dPoison
+}
+
+func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
+	w.Map[coordinates.X][coordinates.Y].Entity = entity
 }
 
 func (w *World) ClearWorld() {

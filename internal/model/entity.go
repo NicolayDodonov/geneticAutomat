@@ -31,7 +31,7 @@ type DNA struct {
 	Array      [longDNA]int
 }
 
-func RunDNA(e *Entity, w *World) {
+func (e *Entity) RunDNA(w *World) {
 	switch e.Array[e.PointerDNA] {
 	case command["move"]:
 		relativeCord := makeTurn(e.turn)
@@ -58,7 +58,7 @@ func RunDNA(e *Entity, w *World) {
 			e.turn = 0
 		}
 	case command["look"]:
-		//if enmpty e.Pointer +=0
+		//if empty e.Pointer +=0
 		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
 			e.PointerDNA += 1
 		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
@@ -67,13 +67,14 @@ func RunDNA(e *Entity, w *World) {
 			e.PointerDNA += 3
 		}
 	case command["get"]:
+
 		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
 			e.Hp -= 5
 		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
 			e.Hp += 10
 			w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
 		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
-			e.PointerDNA += 3
+			e.attack(w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity, w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)))
 		}
 	case command["recycling"]:
 		poisonLevel := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Poison
@@ -91,7 +92,7 @@ func RunDNA(e *Entity, w *World) {
 		e.Hp += dPoison
 		e.PointerDNA++
 	case command["reproduction"]:
-		TODO()
+		
 	case command["jump dna"]:
 		dPointerDNA := e.PointerDNA + 1
 		if dPointerDNA >= longDNA {
@@ -139,6 +140,12 @@ func makeTurn(turn int) Coordinates {
 		cordTurn.Y--
 	}
 	return cordTurn
+}
+
+func (me *Entity) attack(another *Entity, cell *Cell) {
+	me.Hp += another.Hp
+	another.Hp = -1
+	cell.Entity = nil
 }
 
 func TODO() {
