@@ -18,8 +18,8 @@ var command = map[string]int{
 }
 
 type Entity struct {
-	id   int
-	age  int
+	Id   int
+	Age  int
 	Hp   int
 	turn int
 	Coordinates
@@ -92,7 +92,9 @@ func (e *Entity) RunDNA(w *World) {
 		e.Hp += dPoison
 		e.PointerDNA++
 	case command["reproduction"]:
-		
+		//TODO: REMAKE THIS!!!!!!!!!!
+		w.insertNewEntity(CreateEntity(makeTurn(e.turn).X, makeTurn(e.turn).Y, Mutation(&e.DNA, 2)))
+		TODO()
 	case command["jump dna"]:
 		dPointerDNA := e.PointerDNA + 1
 		if dPointerDNA >= longDNA {
@@ -109,6 +111,7 @@ func (e *Entity) RunDNA(w *World) {
 		e.PointerDNA += longDNA
 	}
 	e.Hp--
+	e.Age++
 	w.SetPoisonCell(e.Coordinates, 1)
 }
 
@@ -179,8 +182,9 @@ func (dna1 *DNA) SetDNA(dna2 DNA) {
 	*dna1 = dna2
 }
 
-func (dna *DNA) Mutation(count int) {
+func Mutation(dna *DNA, count int) DNA {
 	for i := 0; i < count; i++ {
 		dna.Array[i] = rand.Intn(longDNA - 1)
 	}
+	return *dna
 }

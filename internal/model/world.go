@@ -39,6 +39,8 @@ func CreateWorld(height, width, population int) World {
 			rand.Intn(world.Height-1)+1,
 			rand.Intn(world.Width-1)+1,
 			RandomDNA())
+		world.ArrayEntity[i].Id += i + 1
+		world.ArrayEntity[i].Hp += 1
 		world.UpdateEntityCell(world.ArrayEntity[i].Coordinates, &world.ArrayEntity[i])
 	}
 	return world
@@ -47,14 +49,14 @@ func CreateWorld(height, width, population int) World {
 func (w *World) insertNewEntity(entity Entity) {
 	NotInsert := true
 	for i := 0; i < len(w.ArrayEntity); i++ {
-		if w.ArrayEntity[i].Hp == -1 {
+		if w.ArrayEntity[i].Hp == -1 || w.ArrayEntity[i].Id == 0 {
 			w.ArrayEntity[i] = entity
 			NotInsert = false
 			break
 		}
 	}
 	if NotInsert {
-
+		w.ArrayEntity = append(w.ArrayEntity, entity)
 	}
 }
 
