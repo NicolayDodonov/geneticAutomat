@@ -147,7 +147,7 @@ func makeTurn(turn int) Coordinates {
 
 func (me *Entity) attack(another *Entity, cell *Cell) {
 	me.Hp += another.Hp
-	another.Hp = -1
+	another.Hp = 0
 	cell.Entity = nil
 }
 
@@ -169,6 +169,14 @@ func CreateEntity(x, y int, dna DNA) Entity {
 	}
 }
 
+func (e *Entity) SetParameters(age, hp, turn, x, y int) {
+	e.Age = age
+	e.Hp = hp
+	e.turn = turn
+	e.Coordinates.X = x
+	e.Coordinates.Y = y
+}
+
 func RandomDNA() DNA {
 	var dna DNA
 	for i := 0; i < longDNA; i++ {
@@ -182,9 +190,8 @@ func (dna1 *DNA) SetDNA(dna2 DNA) {
 	*dna1 = dna2
 }
 
-func Mutation(dna *DNA, count int) DNA {
+func (e *Entity) Mutation(count int) {
 	for i := 0; i < count; i++ {
-		dna.Array[i] = rand.Intn(longDNA - 1)
+		e.DNA.Array[rand.Intn(longDNA-1)] = rand.Intn(8)
 	}
-	return *dna
 }

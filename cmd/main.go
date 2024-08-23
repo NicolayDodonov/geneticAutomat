@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	simulation.RunTrain(1000, 100, 10)
+	simulation.RunTrain(1000, 10)
 	fmt.Scanln()
 }

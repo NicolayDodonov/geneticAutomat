@@ -10,13 +10,15 @@ type Console struct {
 	Array []byte
 }
 
-func (c *Console) Print(world *model.World, age int) {
+func (c *Console) Print(world *model.World) {
 	var canvas [][]byte = make([][]byte, world.Height)
 	for x := 0; x < world.Height; x++ {
 		canvas[x] = make([]byte, world.Width+1)
 		for y := 0; y < world.Width; y++ {
 			if world.Map[x][y].Entity != nil {
-				canvas[x][y] = c.Array[2]
+				if world.Map[x][y].Entity.Hp > 0 {
+					canvas[x][y] = c.Array[2]
+				}
 			} else if world.Map[x][y].Food {
 				canvas[x][y] = c.Array[1]
 			} else if world.Map[x][y].Wall {
@@ -28,6 +30,10 @@ func (c *Console) Print(world *model.World, age int) {
 		canvas[x][world.Width] = byte('\n')
 		fmt.Print(string(canvas[x]))
 	}
-	fmt.Println("Age: ", age, "Number of Life: ", world.CountOfEntity)
+	fmt.Println("Age: ", world.WorldAge, "Number of Life: ", world.CountOfEntity)
 	cursor.Up(world.Height + 1)
+}
+
+func (c *Console) AlterPrint(world *model.World) {
+
 }

@@ -38,8 +38,8 @@ func CreateWorld(height, width, population int) World {
 	world.ClearWorld()
 	for i := 0; i < population; i++ {
 		world.ArrayEntity[i] = CreateEntity(
-			rand.Intn(world.Height-1)+1,
-			rand.Intn(world.Width-1)+1,
+			rand.Intn(world.Height-2)+1,
+			rand.Intn(world.Width-2)+1,
 			RandomDNA())
 		world.ArrayEntity[i].Id += i + 1
 		world.ArrayEntity[i].Hp += 1

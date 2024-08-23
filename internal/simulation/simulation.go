@@ -3,6 +3,7 @@ package simulation
 import (
 	"geneticAutomat/internal/console"
 	"geneticAutomat/internal/model"
+	"math/rand"
 	"time"
 )
 
@@ -34,12 +35,12 @@ func Run() {
 		}
 		time.Sleep(2 * time.Millisecond)
 		//TODO: print world Frame
-		printer.Print(&world, age)
+		printer.Print(&world)
 	}
 }
 
-func RunTrain(endTrainAge, startPopulation, endPopulation int) {
-
+func RunTrain(endTrainAge, endPopulation int) {
+	var startPopulation = endPopulation * endPopulation
 	//Это функция обучения ботов в заданных условиях мира
 	//Следите за отношением endPopulation к startPopulation
 	//todo: создать установку условий мира
@@ -57,10 +58,10 @@ func RunTrain(endTrainAge, startPopulation, endPopulation int) {
 	for world.WorldAge <= endTrainAge { //работаем, пока время жизни мира не сравняется с требуемым временем
 		world.WorldAge = 0 //сбрасываем возраст мира после прошлой попытки
 
-		//работаем, пока в мире не останется 8 ботов
+		//работаем, пока в мире не останется endPopulation ботов
 		for world.CountOfEntity > endPopulation {
 			//проходимся по всем ботам
-			for i := 0; i < len(world.ArrayEntity); i++ {
+			for i := 0; i < startPopulation; i++ {
 				//если хп больше нуля, то выполняем генетический код
 				if world.ArrayEntity[i].Hp > 0 {
 					world.ArrayEntity[i].RunDNA(&world)
@@ -76,15 +77,31 @@ func RunTrain(endTrainAge, startPopulation, endPopulation int) {
 				}
 			}
 			world.WorldAge += 1
-			//todo:Отрисовать кадр
+			//Отрисовать кадр
+			time.Sleep(2 * time.Millisecond)
+			printer.Print(&world)
 		}
-		//ботов стало меньше или равно 8
+		//ботов стало меньше или равно endPopulation
 		//Сортировка ботов по возрасту
 		world.SortEntityByAge()
-		//todo:Замена генома в 8 группах
-		for i := 0; i < endPopulation; i++ {
-			
+		//Замена генома в 8 группах
+		for i := 0; i < endPopulation; i++ { //Лучшие endPopulation ботов
+			for j := 1; j < endPopulation; j++ { //заменяют геном остальных
+				world.ArrayEntity[i*endPopulation+j].SetDNA(world.ArrayEntity[i].DNA)
+			}
 		}
-		//todo:Мутирование генома у отдельных ботов
+		//Мутирование генома у отдельных ботов
+		for i := 0; i < endPopulation; i++ {
+			world.ArrayEntity[rand.Intn(startPopulation-1)].Mutation(2)
+		}
+		//установка ботов
+		for i := 0; i < len(world.ArrayEntity); i++ {
+			world.ArrayEntity[i].SetParameters(
+				0,
+				100,
+				0,
+				rand.Intn(world.Height-2)+1,
+				rand.Intn(world.Height-2)+1)
+		}
 	}
 }
