@@ -93,7 +93,7 @@ func (e *Entity) RunDNA(w *World) {
 		e.PointerDNA++
 	case command["reproduction"]:
 		//TODO: REMAKE THIS!!!!!!!!!!
-		w.insertNewEntity(CreateEntity(makeTurn(e.turn).X, makeTurn(e.turn).Y, Mutation(&e.DNA, 2)))
+		//w.insertNewEntity(CreateEntity(makeTurn(e.turn).X, makeTurn(e.turn).Y, Mutation(&e.DNA, 2)))
 		TODO()
 	case command["jump dna"]:
 		dPointerDNA := e.PointerDNA + 1

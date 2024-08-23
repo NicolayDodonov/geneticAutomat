@@ -15,6 +15,7 @@ type World struct {
 type Statistic struct {
 	CountOfEntity int
 	CountOfFood   int
+	WorldAge      int
 	AvgOfPoison   float64
 }
 
@@ -25,6 +26,7 @@ func CreateWorld(height, width, population int) World {
 		make([][]Cell, height),
 		make([]Entity, population*2),
 		Statistic{
+			population,
 			0,
 			0,
 			0,
@@ -105,6 +107,17 @@ func (w *World) GenerateFood(foodChance int) {
 			if (w.Map[x][y].Poison < 50) &&
 				(rand.Intn(10) > foodChance) {
 				w.Map[x][y].Food = true
+			}
+		}
+	}
+}
+
+func (w *World) SortEntityByAge() {
+	var leng = len(w.ArrayEntity)
+	for i := 0; i < leng-1; i++ {
+		for j := 0; j < leng-i-1; j++ {
+			if w.ArrayEntity[j].Age > w.ArrayEntity[j+1].Age {
+				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
 			}
 		}
 	}
