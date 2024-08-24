@@ -18,10 +18,11 @@ var command = map[string]int{
 }
 
 type Entity struct {
-	Id   int
-	Age  int
-	Hp   int
-	turn int
+	Id     int
+	Age    int
+	Hp     int
+	turn   int
+	IsLive bool
 	Coordinates
 	DNA
 }
@@ -113,6 +114,9 @@ func (e *Entity) RunDNA(w *World) {
 	e.Hp--
 	e.Age++
 	w.SetPoisonCell(e.Coordinates, 1)
+	if e.Hp <= 0 {
+		e.IsLive = false
+	}
 }
 
 func makeTurn(turn int) Coordinates {
@@ -146,9 +150,12 @@ func makeTurn(turn int) Coordinates {
 }
 
 func (me *Entity) attack(another *Entity, cell *Cell) {
-	me.Hp += another.Hp
-	another.Hp = 0
-	cell.Entity = nil
+	if another.IsLive {
+		me.Hp += another.Hp
+		another.Hp = 0
+		another.IsLive = false
+		cell.Entity = nil
+	}
 }
 
 func TODO() {
@@ -161,20 +168,13 @@ func CreateEntity(x, y int, dna DNA) Entity {
 		0,
 		100,
 		0,
+		true,
 		Coordinates{
 			x,
 			y,
 		},
 		dna,
 	}
-}
-
-func (e *Entity) SetParameters(age, hp, turn, x, y int) {
-	e.Age = age
-	e.Hp = hp
-	e.turn = turn
-	e.Coordinates.X = x
-	e.Coordinates.Y = y
 }
 
 func RandomDNA() DNA {

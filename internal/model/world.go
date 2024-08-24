@@ -1,6 +1,8 @@
 package model
 
 import (
+	"errors"
+	"fmt"
 	"math/rand"
 )
 
@@ -70,8 +72,14 @@ func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) {
 	w.Map[coordinates.X][coordinates.Y].Food = dFood
 }
 
-func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) {
-	w.Map[coordinates.X][coordinates.Y].Poison += dPoison
+func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) error {
+	if coordinates.X >= 0 && coordinates.X < w.Width &&
+		coordinates.Y >= 0 && coordinates.Y < w.Height {
+		w.Map[coordinates.X][coordinates.Y].Poison += dPoison
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Coordinates %+v, error", coordinates))
+	}
 }
 
 func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
@@ -113,9 +121,8 @@ func (w *World) GenerateFood(foodChance int) {
 }
 
 func (w *World) SortEntityByAge() {
-	var leng = len(w.ArrayEntity)
-	for i := 0; i < leng-1; i++ {
-		for j := 0; j < leng-i-1; j++ {
+	for i := 0; i < len(w.ArrayEntity)-1; i++ {
+		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
 			if w.ArrayEntity[j].Age > w.ArrayEntity[j+1].Age {
 				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
 			}
