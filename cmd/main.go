@@ -18,8 +18,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка запуска логгирования: WorldBestInfo.txt\n%v", err)
 	}
+	EntityInfoWriter, err := os.Create(`log\EntityInfo.txt`)
+	if err != nil {
+		log.Fatalf("Ошибка запуска логгирования: EntityInfo.txt\n%v", err)
+	}
+	Errors, err := os.Create(`log\EntityInfo.txt`)
+	if err != nil {
+		log.Fatalf("Ошибка запуска логгирования: Error.txt\n%v", err)
+	}
 	slogger.LogWorldAge = slogger.SetupLogger("dev", WorldAgeInfoWriter)
 	slogger.LogWorldBest = slogger.SetupLogger("dev", WorldBestInfoWriter)
+	slogger.LogEntityInfo = slogger.SetupLogger("dev", EntityInfoWriter)
+	slogger.LogErrors = slogger.SetupLogger("debug", Errors)
 
 	simulation.RunTrain(1000000, 10)
 	fmt.Scanln()

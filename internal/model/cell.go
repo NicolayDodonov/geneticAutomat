@@ -19,3 +19,11 @@ func Sum(a, b Coordinates) Coordinates {
 	}
 	return SumCord
 }
+
+func Del(a, b Coordinates) Coordinates {
+	DelCord := Coordinates{
+		a.X - b.X,
+		a.Y - b.Y,
+	}
+	return DelCord
+}

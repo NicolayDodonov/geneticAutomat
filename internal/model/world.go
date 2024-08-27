@@ -64,12 +64,23 @@ func (w *World) insertNewEntity(entity Entity) {
 	}
 }
 
-func (w *World) GetDataCell(coordinates Coordinates) *Cell {
-	return &w.Map[coordinates.X][coordinates.Y]
+func (w *World) GetDataCell(coordinates Coordinates) (*Cell, error) {
+	if coordinates.X >= 0 && coordinates.X < w.Width &&
+		coordinates.Y >= 0 && coordinates.Y < w.Height {
+		return &w.Map[coordinates.X][coordinates.Y], nil
+	} else {
+		return nil, errors.New(fmt.Sprintf("Can't get info in %+v", coordinates))
+	}
 }
 
-func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) {
-	w.Map[coordinates.X][coordinates.Y].Food = dFood
+func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) error {
+	if coordinates.X >= 0 && coordinates.X < w.Width &&
+		coordinates.Y >= 0 && coordinates.Y < w.Height {
+		w.Map[coordinates.X][coordinates.Y].Food = dFood
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Can't set food in %+v", coordinates))
+	}
 }
 
 func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) error {
@@ -81,7 +92,7 @@ func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) error {
 		}
 		return nil
 	} else {
-		return errors.New(fmt.Sprintf("Coordinates %+v, error", coordinates))
+		return errors.New(fmt.Sprintf("Can't set poison in %+v", coordinates))
 	}
 }
 

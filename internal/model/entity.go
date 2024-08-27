@@ -1,6 +1,7 @@
 package model
 
 import (
+	"geneticAutomat/internal/slogger"
 	"math/rand"
 	"strconv"
 )
@@ -33,77 +34,113 @@ type DNA struct {
 	Array      [longDNA]int
 }
 
+func TODO() {
+}
+
 func (e *Entity) RunDNA(w *World) {
 	switch e.Array[e.PointerDNA] {
 	case command["move"]:
 		relativeCord := makeTurn(e.turn)
 		absoluteCord := Sum(relativeCord, e.Coordinates) //абсолютные координаты
-		if (absoluteCord.X < w.Width) &&
-			(absoluteCord.Y < w.Height) &&
-			(absoluteCord.X >= w.Width) &&
-			(absoluteCord.Y >= w.Height) && //TODO: заменить эту проверку функцией
-			!(w.GetDataCell(absoluteCord).Wall) &&
-			(w.GetDataCell(absoluteCord).Entity == nil) {
+		cell, err := w.GetDataCell(absoluteCord)
+		if err == nil {
+			if (absoluteCord.X < w.Width) &&
+				(absoluteCord.Y < w.Height) &&
+				(absoluteCord.X >= w.Width) &&
+				(absoluteCord.Y >= w.Height) && //TODO: заменить эту проверку функцией
+				!(cell.Wall) &&
+				(cell.Entity == nil) {
 
-			w.UpdateEntityCell(e.Coordinates, nil)
-			e.Coordinates = Sum(relativeCord, e.Coordinates)
-			w.UpdateEntityCell(e.Coordinates, e)
+				w.UpdateEntityCell(e.Coordinates, nil)
+				e.Coordinates = Sum(relativeCord, e.Coordinates)
+				w.UpdateEntityCell(e.Coordinates, e)
+			}
+			slogger.LogEntityInfo.Debug("Move", "id", e.Id, "past", Del(e.Coordinates, relativeCord),
+				"new", e.Coordinates)
+		} else {
+			slogger.LogErrors.Error("Move is Fall", err)
 		}
+
 	case command["turnLeft"]:
 		e.turn--
 		if e.turn < 0 {
 			e.turn = 7
 		}
+		slogger.LogEntityInfo.Debug("TurnLeft", "id", e.Id, "turnNow", e.turn)
 	case command["turnRight"]:
 		e.turn++
 		if e.turn > 7 {
 			e.turn = 0
 		}
+		slogger.LogEntityInfo.Debug("TurnRight", "id", e.Id, "turnNow", e.turn)
 	case command["look"]:
-		//if empty e.Pointer +=0
-		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
-			e.PointerDNA += 1
-		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
-			e.PointerDNA += 2
-		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
-			e.PointerDNA += 3
+		cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
+		if err == nil {
+			//if empty e.Pointer +=0
+			if cell.Wall {
+				e.PointerDNA += 1
+				slogger.LogEntityInfo.Debug("Look on Wall", "id", e.Id)
+			} else if cell.Food {
+				e.PointerDNA += 2
+				slogger.LogEntityInfo.Debug("Look on Food", "id", e.Id)
+			} else if cell.Entity != nil &&
+				cell.Entity.IsLive {
+				e.PointerDNA += 3
+				slogger.LogEntityInfo.Debug("Look on Entity", "id", e.Id)
+			}
+		} else {
+			slogger.LogErrors.Error("Look is Fall", err)
 		}
-	case command["get"]:
 
-		if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Wall {
-			e.Hp -= 5
-		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
-			e.Hp += 10
-			w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
-			w.CountOfFood--
-		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
-			e.attack(w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity, w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)))
+	case command["get"]:
+		cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
+		if err == nil {
+			if cell.Wall {
+				e.Hp -= 5
+				slogger.LogEntityInfo.Debug("Get Wall", "id", e.Id, "You a dumb?", "Yes")
+			} else if cell.Food {
+				e.Hp += 10
+				w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
+				w.CountOfFood--
+				slogger.LogEntityInfo.Debug("Get Food", "id", e.Id)
+			} else if cell.Entity != nil {
+				e.attack(cell.Entity, cell)
+				slogger.LogEntityInfo.Debug("Get Attack", "id", e.Id, "id victim",
+					cell.Entity.Id)
+			}
+		} else {
+			slogger.LogErrors.Error("Get is Fall", err)
 		}
+
 	case command["recycling"]:
-		poisonLevel := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Poison
-		var dPoison = 0
-		if poisonLevel > 75 {
-			dPoison = 20
-		} else if poisonLevel > 50 {
-			dPoison = 10
-		} else if poisonLevel > 25 {
-			dPoison = 5
-		} else if poisonLevel > 5 {
-			dPoison = 1
+		cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
+		if err == nil {
+			var dPoison = 0
+			if cell.Poison > 75 {
+				dPoison = 20
+			} else if cell.Poison > 50 {
+				dPoison = 10
+			} else if cell.Poison > 25 {
+				dPoison = 5
+			} else if cell.Poison > 5 {
+				dPoison = 1
+			}
+			w.SetPoisonCell(Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
+			e.Hp += dPoison
+			slogger.LogEntityInfo.Debug("recycling", "id", e.Id, "poisonLevel", cell.Poison,
+				"coord", Sum(makeTurn(e.turn), e.Coordinates))
+		} else {
+			slogger.LogErrors.Error("Recycling is Fall", err)
 		}
-		w.SetPoisonCell(Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
-		e.Hp += dPoison
-		e.PointerDNA++
+
 	case command["reproduction"]:
 		//TODO: REMAKE THIS!!!!!!!!!!
 		//w.insertNewEntity(CreateEntity(makeTurn(e.turn).X, makeTurn(e.turn).Y, Mutation(&e.DNA, 2)))
 		TODO()
-	case command["jump dna"]:
-		dPointerDNA := e.PointerDNA + 1
-		if dPointerDNA >= longDNA {
-			dPointerDNA -= longDNA
-		}
-		e.PointerDNA += e.Array[dPointerDNA]
+	default:
+		dPointerDNA := (e.PointerDNA + e.Array[e.PointerDNA]) % longDNA
+		e.PointerDNA += dPointerDNA
+		slogger.LogEntityInfo.Debug("jump dna", "id", e.Id, "pointer set", e.PointerDNA)
 	}
 
 	e.PointerDNA++
@@ -119,6 +156,8 @@ func (e *Entity) RunDNA(w *World) {
 	if e.Hp <= 0 {
 		e.IsLive = false
 	}
+	slogger.LogEntityInfo.Debug("End RunDNA", "id", e.Id, "LiveStatus:", e.IsLive, "Hp", e.Hp,
+		"Age", e.Age, "Coords", e.Coordinates)
 }
 
 func makeTurn(turn int) Coordinates {
@@ -158,10 +197,6 @@ func (me *Entity) attack(another *Entity, cell *Cell) {
 		another.IsLive = false
 		cell.Entity = nil
 	}
-}
-
-func TODO() {
-
 }
 
 func CreateEntity(x, y int, dna DNA) Entity {

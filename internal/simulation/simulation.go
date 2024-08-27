@@ -5,7 +5,6 @@ import (
 	"geneticAutomat/internal/model"
 	"geneticAutomat/internal/slogger"
 	"math/rand"
-	"time"
 )
 
 func RunTrain(endTrainAge, endPopulation int) {
@@ -45,8 +44,8 @@ func RunTrain(endTrainAge, endPopulation int) {
 			world.WorldAge += 1
 			world.AvgOfPoison = world.AvgPoison()
 			//Отрисовать кадр
-			time.Sleep(2 * time.Millisecond)
-			printer.Print(&world, counterWorld)
+			//time.Sleep(2 * time.Millisecond)
+			//printer.Print(&world, counterWorld)
 		}
 		//ботов стало меньше или равно endPopulation
 		//Сортировка ботов по возрасту
@@ -76,4 +75,5 @@ func RunTrain(endTrainAge, endPopulation int) {
 
 		}
 	}
+	slogger.LogErrors.Debug("Finish Training")
 }
