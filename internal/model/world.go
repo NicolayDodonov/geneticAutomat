@@ -76,6 +76,9 @@ func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) error {
 	if coordinates.X >= 0 && coordinates.X < w.Width &&
 		coordinates.Y >= 0 && coordinates.Y < w.Height {
 		w.Map[coordinates.X][coordinates.Y].Poison += dPoison
+		if w.Map[coordinates.X][coordinates.Y].Poison > 100 {
+			w.Map[coordinates.X][coordinates.Y].Poison = 100
+		}
 		return nil
 	} else {
 		return errors.New(fmt.Sprintf("Coordinates %+v, error", coordinates))
@@ -115,6 +118,7 @@ func (w *World) GenerateFood(foodChance int) {
 			if (w.Map[x][y].Poison < 50) &&
 				(rand.Intn(10) > foodChance) {
 				w.Map[x][y].Food = true
+				w.CountOfFood++
 			}
 		}
 	}
@@ -128,4 +132,15 @@ func (w *World) SortEntityByAge() {
 			}
 		}
 	}
+}
+
+func (w *World) AvgPoison() float64 {
+	n := w.Width * w.Height
+	sumPoison := 0
+	for x := 0; x < w.Width; x++ {
+		for y := 0; y < w.Height; y++ {
+			sumPoison += w.Map[x][y].Poison
+		}
+	}
+	return float64(sumPoison / n)
 }

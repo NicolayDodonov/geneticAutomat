@@ -8,38 +8,6 @@ import (
 	"time"
 )
 
-const population int = 64
-
-func Run() {
-	//TODO: init logger
-
-	//TODO: init console print
-	var printer console.Console = console.Console{
-		[]byte("H.E "),
-	}
-	//TODO: create world
-	var world model.World = model.CreateWorld(25, 25, population)
-	world.GenerateWalls()
-	world.GenerateFood(2)
-
-	//TODO: create goroutine of simulation
-	for age := 0; age < 120; age++ {
-		world.CountOfEntity = 0
-		for i := 0; i < len(world.ArrayEntity); i++ {
-			if world.ArrayEntity[i].Hp > 0 {
-				world.ArrayEntity[i].RunDNA(&world)
-				world.CountOfEntity++
-			} else if world.ArrayEntity[i].Hp != -1 {
-				world.ArrayEntity[i].Hp = -1
-				world.UpdateEntityCell(world.ArrayEntity[i].Coordinates, nil)
-			}
-		}
-		time.Sleep(2 * time.Millisecond)
-		//TODO: print world Frame
-		printer.Print(&world)
-	}
-}
-
 func RunTrain(endTrainAge, endPopulation int) {
 	var startPopulation = endPopulation * endPopulation
 	//Это функция обучения ботов в заданных условиях мира
@@ -47,7 +15,7 @@ func RunTrain(endTrainAge, endPopulation int) {
 	//todo: создать установку условий мира
 
 	var printer console.Console = console.Console{
-		[]byte("H.E "),
+		[]byte(" #.E"),
 	}
 	_ = printer
 
@@ -58,7 +26,9 @@ func RunTrain(endTrainAge, endPopulation int) {
 	for counterWorld := 0; world.WorldAge <= endTrainAge; counterWorld++ { //работаем, пока время жизни мира не сравняется с требуемым временем
 
 		world.WorldAge = 0 //сбрасываем возраст мира после прошлой попытки
+		world.ClearWorld()
 		world.CountOfEntity = startPopulation
+		world.CountOfFood = 0
 		world.GenerateFood(2)
 
 		//работаем, пока в мире не останется endPopulation ботов
@@ -73,9 +43,10 @@ func RunTrain(endTrainAge, endPopulation int) {
 				}
 			}
 			world.WorldAge += 1
+			world.AvgOfPoison = world.AvgPoison()
 			//Отрисовать кадр
 			time.Sleep(2 * time.Millisecond)
-			//printer.AlterPrint(&world, counterWorld)
+			printer.Print(&world, counterWorld)
 		}
 		//ботов стало меньше или равно endPopulation
 		//Сортировка ботов по возрасту

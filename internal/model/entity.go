@@ -75,6 +75,7 @@ func (e *Entity) RunDNA(w *World) {
 		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Food {
 			e.Hp += 10
 			w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
+			w.CountOfFood--
 		} else if w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity != nil {
 			e.attack(w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)).Entity, w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates)))
 		}
