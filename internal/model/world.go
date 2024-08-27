@@ -123,7 +123,7 @@ func (w *World) GenerateFood(foodChance int) {
 func (w *World) SortEntityByAge() {
 	for i := 0; i < len(w.ArrayEntity)-1; i++ {
 		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
-			if w.ArrayEntity[j].Age > w.ArrayEntity[j+1].Age {
+			if w.ArrayEntity[j].Age < w.ArrayEntity[j+1].Age {
 				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
 			}
 		}

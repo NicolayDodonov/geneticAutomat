@@ -1,0 +1,7 @@
+{"time":"2024-08-24T16:01:34.826053+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":0,"Ages ":142}
+{"time":"2024-08-24T16:01:37.3819262+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":1,"Ages ":161}
+{"time":"2024-08-24T16:01:40.0689996+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":2,"Ages ":172}
+{"time":"2024-08-24T16:01:41.8080331+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":3,"Ages ":111}
+{"time":"2024-08-24T16:01:43.5568478+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":4,"Ages ":111}
+{"time":"2024-08-24T16:01:46.3909872+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":5,"Ages ":181}
+{"time":"2024-08-24T16:01:51.548756+04:00","level":"DEBUG","msg":"World is ded! Sorry!","World № ":6,"Ages ":329}

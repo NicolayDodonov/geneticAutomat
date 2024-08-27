@@ -3,6 +3,7 @@ package simulation
 import (
 	"geneticAutomat/internal/console"
 	"geneticAutomat/internal/model"
+	"geneticAutomat/internal/slogger"
 	"math/rand"
 	"time"
 )
@@ -74,17 +75,22 @@ func RunTrain(endTrainAge, endPopulation int) {
 			world.WorldAge += 1
 			//Отрисовать кадр
 			time.Sleep(2 * time.Millisecond)
-			printer.AlterPrint(&world, counterWorld)
+			//printer.AlterPrint(&world, counterWorld)
 		}
 		//ботов стало меньше или равно endPopulation
 		//Сортировка ботов по возрасту
 		world.SortEntityByAge()
+
+		slogger.LogWorldAge.Debug("World is ded! Sorry!", "World № ", counterWorld, "Ages ", world.WorldAge)
+		slogger.LogWorldBest.Debug("It is the best endPopulation's ботов")
 		//Замена генома в 8 группах
 		for i := 0; i < endPopulation; i++ { //Лучшие endPopulation ботов
+			slogger.LogWorldBest.Debug("№ \v", world.ArrayEntity[i].DNA)
 			for j := 1; j < endPopulation; j++ { //заменяют геном остальных
 				world.ArrayEntity[i*endPopulation+j].SetDNA(world.ArrayEntity[i].DNA)
 			}
 		}
+
 		//Мутирование генома у отдельных ботов
 		for i := 0; i < endPopulation; i++ {
 			world.ArrayEntity[rand.Intn(startPopulation-1)].Mutation(2)

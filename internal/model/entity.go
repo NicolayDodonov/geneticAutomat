@@ -2,6 +2,7 @@ package model
 
 import (
 	"math/rand"
+	"strconv"
 )
 
 const longDNA = 64
@@ -175,6 +176,13 @@ func CreateEntity(x, y int, dna DNA) Entity {
 		},
 		dna,
 	}
+}
+
+func (dna DNA) GoString() (stringDNA string) {
+	for i := 0; i < len(dna.Array); i++ {
+		stringDNA += strconv.Itoa(dna.Array[i]) + ", "
+	}
+	return stringDNA
 }
 
 func RandomDNA() DNA {
