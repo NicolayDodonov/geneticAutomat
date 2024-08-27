@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -17,8 +18,8 @@ type World struct {
 type Statistic struct {
 	CountOfEntity int
 	CountOfFood   int
+	CountOfPoison int
 	WorldAge      int
-	AvgOfPoison   float64
 }
 
 func CreateWorld(height, width, population int) World {
@@ -37,7 +38,7 @@ func CreateWorld(height, width, population int) World {
 	for x := 0; x < height; x++ {
 		world.Map[x] = make([]Cell, width)
 	}
-	world.ClearWorld()
+	world.Clear()
 	for i := 0; i < population; i++ {
 		world.ArrayEntity[i] = CreateEntity(
 			rand.Intn(world.Height-2)+1,
@@ -50,20 +51,6 @@ func CreateWorld(height, width, population int) World {
 	return world
 }
 
-func (w *World) insertNewEntity(entity Entity) {
-	NotInsert := true
-	for i := 0; i < len(w.ArrayEntity); i++ {
-		if w.ArrayEntity[i].Hp == -1 || w.ArrayEntity[i].Id == 0 {
-			w.ArrayEntity[i] = entity
-			NotInsert = false
-			break
-		}
-	}
-	if NotInsert {
-		w.ArrayEntity = append(w.ArrayEntity, entity)
-	}
-}
-
 func (w *World) GetDataCell(coordinates Coordinates) (*Cell, error) {
 	if coordinates.X >= 0 && coordinates.X < w.Width &&
 		coordinates.Y >= 0 && coordinates.Y < w.Height {
@@ -73,7 +60,7 @@ func (w *World) GetDataCell(coordinates Coordinates) (*Cell, error) {
 	}
 }
 
-func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) error {
+func (w *World) ChangeCellFood(coordinates Coordinates, dFood bool) error {
 	if coordinates.X >= 0 && coordinates.X < w.Width &&
 		coordinates.Y >= 0 && coordinates.Y < w.Height {
 		w.Map[coordinates.X][coordinates.Y].Food = dFood
@@ -83,44 +70,16 @@ func (w *World) SetFoodCell(coordinates Coordinates, dFood bool) error {
 	}
 }
 
-func (w *World) SetPoisonCell(coordinates Coordinates, dPoison int) error {
-	if coordinates.X >= 0 && coordinates.X < w.Width &&
-		coordinates.Y >= 0 && coordinates.Y < w.Height {
-		w.Map[coordinates.X][coordinates.Y].Poison += dPoison
-		if w.Map[coordinates.X][coordinates.Y].Poison > 100 {
-			w.Map[coordinates.X][coordinates.Y].Poison = 100
-		}
-		return nil
-	} else {
-		return errors.New(fmt.Sprintf("Can't set poison in %+v", coordinates))
-	}
-}
-
-func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
-	w.Map[coordinates.X][coordinates.Y].Entity = entity
-}
-
-func (w *World) ClearWorld() {
+func (w *World) GetCountFood() int {
+	sumFood := 0
 	for x := 0; x < w.Width; x++ {
 		for y := 0; y < w.Height; y++ {
-			w.Map[x][y].Wall = false
-			w.Map[x][y].Food = false
-			w.Map[x][y].Poison = 0
-			w.Map[x][y].Entity = nil
+			if w.Map[x][y].Food {
+				sumFood++
+			}
 		}
 	}
-	w.GenerateWalls()
-}
-
-func (w *World) GenerateWalls() {
-	for x := 0; x < w.Width; x++ {
-		w.Map[x][0].Wall = true
-		w.Map[x][w.Width-1].Wall = true
-	}
-	for y := 0; y < w.Height; y++ {
-		w.Map[0][y].Wall = true
-		w.Map[w.Height-1][y].Wall = true
-	}
+	return sumFood
 }
 
 func (w *World) GenerateFood(foodChance int) {
@@ -135,6 +94,73 @@ func (w *World) GenerateFood(foodChance int) {
 	}
 }
 
+func (w *World) ChangeCellPoison(coordinates Coordinates, dPoison int) error {
+	if coordinates.X >= 0 && coordinates.X < w.Width &&
+		coordinates.Y >= 0 && coordinates.Y < w.Height {
+
+		w.Map[coordinates.X][coordinates.Y].Poison += dPoison
+
+		if w.Map[coordinates.X][coordinates.Y].Poison > 100 {
+			w.Map[coordinates.X][coordinates.Y].Poison = 100
+
+		} else if w.Map[coordinates.X][coordinates.Y].Poison < 0 {
+			w.Map[coordinates.X][coordinates.Y].Poison = 0
+
+		}
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Can't set poison in %+v", coordinates))
+	}
+}
+
+func (w *World) GetCountPoison() int {
+	sumPoison := 0
+	for x := 0; x < w.Width; x++ {
+		for y := 0; y < w.Height; y++ {
+			sumPoison += w.Map[x][y].Poison
+		}
+	}
+	return sumPoison
+}
+
+func (w *World) GetPercentPoison() float64 {
+	maxPoison := w.Height * w.Width * 100
+	var count int
+	for x := 0; x < w.Height; x++ {
+		for y := 0; y < w.Width; y++ {
+			count += w.Map[x][y].Poison
+		}
+	}
+	return math.Round((float64(count) / float64(maxPoison)) * 100)
+}
+
+func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
+	w.Map[coordinates.X][coordinates.Y].Entity = entity
+}
+
+func (w *World) Clear() {
+	for x := 0; x < w.Width; x++ {
+		for y := 0; y < w.Height; y++ {
+			w.Map[x][y].Wall = false
+			w.Map[x][y].Food = false
+			w.Map[x][y].Poison = 0
+			w.Map[x][y].Entity = nil
+		}
+	}
+	w.GenerateBorderWalls()
+}
+
+func (w *World) GenerateBorderWalls() {
+	for x := 0; x < w.Width; x++ {
+		w.Map[x][0].Wall = true
+		w.Map[x][w.Width-1].Wall = true
+	}
+	for y := 0; y < w.Height; y++ {
+		w.Map[0][y].Wall = true
+		w.Map[w.Height-1][y].Wall = true
+	}
+}
+
 func (w *World) SortEntityByAge() {
 	for i := 0; i < len(w.ArrayEntity)-1; i++ {
 		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
@@ -143,15 +169,4 @@ func (w *World) SortEntityByAge() {
 			}
 		}
 	}
-}
-
-func (w *World) AvgPoison() float64 {
-	n := w.Width * w.Height
-	sumPoison := 0
-	for x := 0; x < w.Width; x++ {
-		for y := 0; y < w.Height; y++ {
-			sumPoison += w.Map[x][y].Poison
-		}
-	}
-	return float64(sumPoison / n)
 }

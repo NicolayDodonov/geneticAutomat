@@ -35,6 +35,6 @@ func (c *Console) Print(world *model.World, counter int) {
 	}
 
 	fmt.Println("Age:", world.WorldAge, "Life:", world.CountOfEntity,
-		"              \nPoison:", world.AvgOfPoison, "Food", world.CountOfFood, "              ")
+		"              \nPoison:", world.CountOfPoison, "%:", world.GetPercentPoison(), "Food", world.CountOfFood, "              ")
 	cursor.Up(world.Height + 2)
 }

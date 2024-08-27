@@ -5,6 +5,7 @@ import (
 	"geneticAutomat/internal/model"
 	"geneticAutomat/internal/slogger"
 	"math/rand"
+	"time"
 )
 
 func RunTrain(endTrainAge, endPopulation int) {
@@ -19,13 +20,13 @@ func RunTrain(endTrainAge, endPopulation int) {
 	_ = printer
 
 	var world model.World = model.CreateWorld(25, 25, startPopulation)
-	world.GenerateWalls()
+	world.GenerateBorderWalls()
 
 	//Создаём цикл обучения
 	for counterWorld := 0; world.WorldAge <= endTrainAge; counterWorld++ { //работаем, пока время жизни мира не сравняется с требуемым временем
 
 		world.WorldAge = 0 //сбрасываем возраст мира после прошлой попытки
-		world.ClearWorld()
+		world.Clear()
 		world.CountOfEntity = startPopulation
 		world.CountOfFood = 0
 		world.GenerateFood(2)
@@ -42,16 +43,23 @@ func RunTrain(endTrainAge, endPopulation int) {
 				}
 			}
 			world.WorldAge += 1
-			world.AvgOfPoison = world.AvgPoison()
+			world.CountOfPoison = world.GetCountPoison()
+			world.CountOfFood = world.GetCountFood()
+			if world.CountOfFood < 120 {
+				world.GenerateFood(5)
+			}
+
 			//Отрисовать кадр
-			//time.Sleep(2 * time.Millisecond)
-			//printer.Print(&world, counterWorld)
+			time.Sleep(2 * time.Millisecond)
+			printer.Print(&world, counterWorld)
 		}
 		//ботов стало меньше или равно endPopulation
 		//Сортировка ботов по возрасту
 		world.SortEntityByAge()
 
-		slogger.LogWorldAge.Debug("World is ded! Sorry!", "World № ", counterWorld, "Ages ", world.WorldAge)
+		slogger.LogWorldAge.Debug("End World", "Number", counterWorld, "Age", world.WorldAge,
+			"Poison", world.CountOfPoison, "Food", world.CountOfFood)
+
 		slogger.LogWorldBest.Debug("It is the best endPopulation's ботов")
 		//Замена генома в 8 группах
 		for i := 0; i < endPopulation; i++ { //Лучшие endPopulation ботов

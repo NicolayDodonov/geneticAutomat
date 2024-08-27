@@ -100,9 +100,12 @@ func (e *Entity) RunDNA(w *World) {
 				slogger.LogEntityInfo.Debug("Get Wall", "id", e.Id, "You a dumb?", "Yes")
 			} else if cell.Food {
 				e.Hp += 10
-				w.SetFoodCell(Sum(makeTurn(e.turn), e.Coordinates), false)
-				w.CountOfFood--
-				slogger.LogEntityInfo.Debug("Get Food", "id", e.Id)
+				errUpdate := w.ChangeCellFood(Sum(makeTurn(e.turn), e.Coordinates), false)
+				if errUpdate != nil {
+					slogger.LogEntityInfo.Debug("Get Food", "id", e.Id)
+				} else {
+					slogger.LogErrors.Error("Error Update", errUpdate)
+				}
 			} else if cell.Entity != nil {
 				e.attack(cell.Entity, cell)
 				slogger.LogEntityInfo.Debug("Get Attack", "id", e.Id, "id victim",
@@ -114,8 +117,9 @@ func (e *Entity) RunDNA(w *World) {
 
 	case command["recycling"]:
 		cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
+		var dPoison = 0
+
 		if err == nil {
-			var dPoison = 0
 			if cell.Poison > 75 {
 				dPoison = 20
 			} else if cell.Poison > 50 {
@@ -125,10 +129,14 @@ func (e *Entity) RunDNA(w *World) {
 			} else if cell.Poison > 5 {
 				dPoison = 1
 			}
-			w.SetPoisonCell(Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
-			e.Hp += dPoison
-			slogger.LogEntityInfo.Debug("recycling", "id", e.Id, "poisonLevel", cell.Poison,
-				"coord", Sum(makeTurn(e.turn), e.Coordinates))
+			errUpdate := w.ChangeCellPoison(Sum(makeTurn(e.turn), e.Coordinates), -dPoison)
+			if errUpdate != nil {
+				e.Hp += dPoison
+				slogger.LogEntityInfo.Debug("recycling", "id", e.Id, "poisonLevel", cell.Poison,
+					"coord", Sum(makeTurn(e.turn), e.Coordinates))
+			} else {
+				slogger.LogErrors.Error("Error Update", errUpdate)
+			}
 		} else {
 			slogger.LogErrors.Error("Recycling is Fall", err)
 		}
@@ -152,9 +160,13 @@ func (e *Entity) RunDNA(w *World) {
 	}
 	e.Hp--
 	e.Age++
-	w.SetPoisonCell(e.Coordinates, 1)
+	errUpdate := w.ChangeCellPoison(e.Coordinates, 1)
+	if errUpdate == nil {
+		slogger.LogErrors.Error("Error update final RunDNA", errUpdate)
+	}
 	if e.Hp <= 0 {
 		e.IsLive = false
+		slogger.LogEntityInfo.Debug("I'm dying!!!!", "id", e.Id)
 	}
 	slogger.LogEntityInfo.Debug("End RunDNA", "id", e.Id, "LiveStatus:", e.IsLive, "Hp", e.Hp,
 		"Age", e.Age, "Coords", e.Coordinates)
