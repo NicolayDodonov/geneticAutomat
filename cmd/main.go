@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка запуска логгирования: EntityInfo.txt\n%v", err)
 	}
-	Errors, err := os.Create(`log\EntityInfo.txt`)
+	Errors, err := os.Create(`log\Errors.txt`)
 	if err != nil {
 		log.Fatalf("Ошибка запуска логгирования: Error.txt\n%v", err)
 	}
