@@ -29,7 +29,7 @@ func main() {
 	slogger.LogWorldAge = slogger.SetupLogger("dev", WorldAgeInfoWriter)
 	slogger.LogWorldBest = slogger.SetupLogger("dev", WorldBestInfoWriter)
 	slogger.LogEntityInfo = slogger.SetupLogger("dev", EntityInfoWriter)
-	slogger.LogErrors = slogger.SetupLogger("debug", Errors)
+	slogger.LogErrors = slogger.SetupLogger("dev", Errors)
 
 	simulation.RunTrain(1000000, 10)
 	fmt.Scanln()

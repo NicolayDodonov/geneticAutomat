@@ -45,7 +45,7 @@ func RunTrain(endTrainAge, endPopulation int) {
 			world.WorldAge += 1
 			world.CountOfPoison = world.GetCountPoison()
 			world.CountOfFood = world.GetCountFood()
-			if world.CountOfFood < 120 {
+			if world.CountOfFood < 110 {
 				world.GenerateFood(5)
 			}
 
