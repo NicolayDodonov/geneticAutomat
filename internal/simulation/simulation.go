@@ -45,6 +45,7 @@ func RunTrain(endTrainAge, endPopulation int) {
 			world.WorldAge += 1
 			world.CountOfPoison = world.GetCountPoison()
 			world.CountOfFood = world.GetCountFood()
+			//TODO:Проверку впихнуть в функцию GenerateFood
 			if world.CountOfFood < 110 {
 				world.GenerateFood(5)
 			}
@@ -71,7 +72,7 @@ func RunTrain(endTrainAge, endPopulation int) {
 
 		//Мутирование генома у отдельных ботов
 		for i := 0; i < endPopulation; i++ {
-			world.ArrayEntity[rand.Intn(startPopulation-1)].Mutation(2)
+			world.ArrayEntity[rand.Intn(startPopulation-1)].MutationDNA(2)
 		}
 		//установка ботов
 		for i := 0; i < len(world.ArrayEntity); i++ {

@@ -1,12 +1,5 @@
 package model
 
-type Cell struct {
-	Poison int
-	Food   bool
-	Wall   bool
-	*Entity
-}
-
 type Coordinates struct {
 	X int
 	Y int
@@ -26,4 +19,34 @@ func Del(a, b Coordinates) Coordinates {
 		a.Y - b.Y,
 	}
 	return DelCord
+}
+
+func makeTurn(turn int) Coordinates {
+	cordTurn := Coordinates{
+		0,
+		0,
+	}
+	switch turn {
+	case 0:
+		cordTurn.Y--
+	case 1:
+		cordTurn.X++
+		cordTurn.Y--
+	case 2:
+		cordTurn.X++
+	case 3:
+		cordTurn.X++
+		cordTurn.Y++
+	case 4:
+		cordTurn.Y++
+	case 5:
+		cordTurn.X--
+		cordTurn.Y++
+	case 6:
+		cordTurn.X--
+	case 7:
+		cordTurn.X--
+		cordTurn.Y--
+	}
+	return cordTurn
 }

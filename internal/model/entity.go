@@ -37,30 +37,13 @@ type DNA struct {
 func TODO() {
 }
 
+// TODO:Разобрать свич на отдельные функции
 func (e *Entity) RunDNA(w *World) {
 	for countRun := 0; countRun < 10; {
 		switch e.Array[e.PointerDNA] {
 		case command["move"]:
-			relativeCord := makeTurn(e.turn)
-			absoluteCord := Sum(relativeCord, e.Coordinates) //абсолютные координаты
-			cell, err := w.GetDataCell(absoluteCord)
-			if err == nil {
-				if (absoluteCord.X < w.Width) &&
-					(absoluteCord.Y < w.Height) &&
-					(absoluteCord.X >= w.Width) &&
-					(absoluteCord.Y >= w.Height) && //TODO: заменить эту проверку функцией
-					!(cell.Wall) &&
-					(cell.Entity == nil) {
+			e.move(w)
 
-					w.UpdateEntityCell(e.Coordinates, nil)
-					e.Coordinates = Sum(relativeCord, e.Coordinates)
-					w.UpdateEntityCell(e.Coordinates, e)
-				}
-				slogger.LogEntityInfo.Debug("Move", "id", e.Id, "past", Del(e.Coordinates, relativeCord),
-					"new", e.Coordinates)
-			} else {
-				slogger.LogErrors.Error("Move is Fall", err)
-			}
 			countRun += 5
 		case command["turnLeft"]:
 			e.turn--
@@ -68,6 +51,7 @@ func (e *Entity) RunDNA(w *World) {
 				e.turn = 7
 			}
 			slogger.LogEntityInfo.Debug("TurnLeft", "id", e.Id, "turnNow", e.turn)
+
 			countRun++
 		case command["turnRight"]:
 			e.turn++
@@ -75,6 +59,7 @@ func (e *Entity) RunDNA(w *World) {
 				e.turn = 0
 			}
 			slogger.LogEntityInfo.Debug("TurnRight", "id", e.Id, "turnNow", e.turn)
+
 			countRun++
 		case command["look"]:
 			cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
@@ -94,6 +79,7 @@ func (e *Entity) RunDNA(w *World) {
 			} else {
 				slogger.LogErrors.Error("Look is Fall", err)
 			}
+
 			countRun += 2
 		case command["get"]:
 			cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
@@ -117,6 +103,7 @@ func (e *Entity) RunDNA(w *World) {
 			} else {
 				slogger.LogErrors.Error("Get is Fall", err)
 			}
+			
 			countRun += 5
 		case command["recycling"]:
 			cell, err := w.GetDataCell(Sum(makeTurn(e.turn), e.Coordinates))
@@ -178,34 +165,27 @@ func (e *Entity) RunDNA(w *World) {
 		"Age", e.Age, "Coords", e.Coordinates)
 }
 
-func makeTurn(turn int) Coordinates {
-	cordTurn := Coordinates{
-		0,
-		0,
+func (e *Entity) move(w *World) {
+	relativeCord := makeTurn(e.turn)
+	absoluteCord := Sum(relativeCord, e.Coordinates) //абсолютные координаты
+	cell, err := w.GetDataCell(absoluteCord)
+	if err == nil {
+		if (absoluteCord.X < w.Width) &&
+			(absoluteCord.Y < w.Height) &&
+			(absoluteCord.X >= w.Width) &&
+			(absoluteCord.Y >= w.Height) && //TODO: заменить эту проверку функцией
+			!(cell.Wall) &&
+			(cell.Entity == nil) {
+
+			w.UpdateEntityCell(e.Coordinates, nil)
+			e.Coordinates = Sum(relativeCord, e.Coordinates)
+			w.UpdateEntityCell(e.Coordinates, e)
+		}
+		slogger.LogEntityInfo.Debug("Move", "id", e.Id, "past", Del(e.Coordinates, relativeCord),
+			"new", e.Coordinates)
+	} else {
+		slogger.LogErrors.Error("Move is Fall", err)
 	}
-	switch turn {
-	case 0:
-		cordTurn.Y--
-	case 1:
-		cordTurn.X++
-		cordTurn.Y--
-	case 2:
-		cordTurn.X++
-	case 3:
-		cordTurn.X++
-		cordTurn.Y++
-	case 4:
-		cordTurn.Y++
-	case 5:
-		cordTurn.X--
-		cordTurn.Y++
-	case 6:
-		cordTurn.X--
-	case 7:
-		cordTurn.X--
-		cordTurn.Y--
-	}
-	return cordTurn
 }
 
 func (me *Entity) attack(another *Entity, cell *Cell) {
@@ -238,7 +218,6 @@ func (dna DNA) GoString() (stringDNA string) {
 	}
 	return stringDNA
 }
-
 func RandomDNA() DNA {
 	var dna DNA
 	for i := 0; i < longDNA; i++ {
@@ -252,7 +231,7 @@ func (dna1 *DNA) SetDNA(dna2 DNA) {
 	*dna1 = dna2
 }
 
-func (e *Entity) Mutation(count int) {
+func (e *Entity) MutationDNA(count int) {
 	for i := 0; i < count; i++ {
 		e.DNA.Array[rand.Intn(longDNA-1)] = rand.Intn(8)
 	}

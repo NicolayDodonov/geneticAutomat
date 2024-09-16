@@ -15,6 +15,13 @@ type World struct {
 	Statistic
 }
 
+type Cell struct {
+	Poison int
+	Food   bool
+	Wall   bool
+	*Entity
+}
+
 type Statistic struct {
 	CountOfEntity int
 	CountOfFood   int
@@ -70,7 +77,10 @@ func (w *World) ChangeCellFood(coordinates Coordinates, dFood bool) error {
 	}
 }
 
+// TODO:убрать get из названия
+// TODO:убрать sum
 func (w *World) GetCountFood() int {
+
 	sumFood := 0
 	for x := 0; x < w.Width; x++ {
 		for y := 0; y < w.Height; y++ {
@@ -82,6 +92,7 @@ func (w *World) GetCountFood() int {
 	return sumFood
 }
 
+// TODO:Полностью переписать
 func (w *World) GenerateFood(foodChance int) {
 	for x := 1; x < w.Width-1; x++ {
 		for y := 1; y < w.Height-1; y++ {
@@ -113,6 +124,8 @@ func (w *World) ChangeCellPoison(coordinates Coordinates, dPoison int) error {
 	}
 }
 
+// TODO:убрать get из названия
+// TODO:убрать sum
 func (w *World) GetCountPoison() int {
 	sumPoison := 0
 	for x := 0; x < w.Width; x++ {
@@ -123,6 +136,7 @@ func (w *World) GetCountPoison() int {
 	return sumPoison
 }
 
+// TODO:убрать get из названия
 func (w *World) GetPercentPoison() float64 {
 	maxPoison := w.Height * w.Width * 100
 	var count int
@@ -134,6 +148,7 @@ func (w *World) GetPercentPoison() float64 {
 	return math.Round((float64(count) / float64(maxPoison)) * 100)
 }
 
+// TODO: переписать?
 func (w *World) UpdateEntityCell(coordinates Coordinates, entity *Entity) {
 	w.Map[coordinates.X][coordinates.Y].Entity = entity
 }
