@@ -66,13 +66,13 @@ func RunTrain(endTrainAge, endPopulation int) {
 		for i := 0; i < endPopulation; i++ { //Лучшие endPopulation ботов
 			slogger.LogWorldBest.Debug("№ \v", world.ArrayEntity[i].DNA)
 			for j := 1; j < endPopulation; j++ { //заменяют геном остальных
-				world.ArrayEntity[i*endPopulation+j].SetDNA(world.ArrayEntity[i].DNA)
+				world.ArrayEntity[i*endPopulation+j].DNA.Set(world.ArrayEntity[i].DNA)
 			}
 		}
 
 		//Мутирование генома у отдельных ботов
 		for i := 0; i < endPopulation; i++ {
-			world.ArrayEntity[rand.Intn(startPopulation-1)].MutationDNA(2)
+			world.ArrayEntity[rand.Intn(startPopulation-1)].Mutation(2)
 		}
 		//установка ботов
 		for i := 0; i < len(world.ArrayEntity); i++ {

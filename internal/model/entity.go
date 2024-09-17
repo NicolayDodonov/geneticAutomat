@@ -2,8 +2,6 @@ package model
 
 import (
 	"geneticAutomat/internal/slogger"
-	"math/rand"
-	"strconv"
 )
 
 const (
@@ -31,11 +29,6 @@ type Entity struct {
 	IsLive bool
 	Coordinates
 	DNA
-}
-
-type DNA struct {
-	PointerDNA int
-	Array      [lengthDNA]int
 }
 
 func (e *Entity) RunDNA(w *World) {
@@ -258,30 +251,5 @@ func CreateEntity(x, y int, dna DNA) Entity {
 			y,
 		},
 		dna,
-	}
-}
-
-func (dna DNA) GoString() (stringDNA string) {
-	for i := 0; i < len(dna.Array); i++ {
-		stringDNA += strconv.Itoa(dna.Array[i]) + ", "
-	}
-	return stringDNA
-}
-func RandomDNA() DNA {
-	var dna DNA
-	for i := 0; i < lengthDNA; i++ {
-		dna.Array[i] = rand.Intn(lengthDNA - 1)
-	}
-	dna.PointerDNA = rand.Intn(lengthDNA - 1)
-	return dna
-}
-
-func (dna1 *DNA) SetDNA(dna2 DNA) {
-	*dna1 = dna2
-}
-
-func (e *Entity) MutationDNA(count int) {
-	for i := 0; i < count; i++ {
-		e.DNA.Array[rand.Intn(lengthDNA-1)] = rand.Intn(8)
 	}
 }
